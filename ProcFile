@@ -1,0 +1,1 @@
+web: gunicorn praxthon_cvs_1.wsgi

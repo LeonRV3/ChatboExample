@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- BULMA -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <!-- JQUERY -->
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <!-- SOCKETIO -->
+    <script src="https://cdn.socket.io/4.2.0/socket.io.min.js" integrity="sha384-PiBR5S00EtOj2Lto9Uu81cmoyZqR57XcOna1oAuVuIEjzj0wpqDVfD0JA9eXlRsj" crossorigin="anonymous"></script>
+    <title>Document</title>
+</head>
+<body>
+    <!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hello Bulma!</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  </head>
+  <body>
+    <div class="columns">
+        <div class="column">
+            <div class="section">
+                <section class="hero is-small is-primary">
+                    <div class="hero-body">
+                        <p class="title">
+                        Heramienta de administración de productos
+                        </p>
+                        <p class="subtitle">
+                        Ingrese un nuevo producto o busquelo con los parametros mostrados
+                        </p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <div class="columns">
+        <div class="column is-1"></div>
+        <div class="column is-4">
+            <div class="box">
+                <div class="title">Ingresa un producto</div>
+                <div class="field">
+                    <label class="label">Nombre</label>
+                    <div class="control">
+                        <input id="incv_name" class="input" type="text" placeholder="ej. Doritos pizerola">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Marca</label>
+                    <div class="control">
+                        <input id="incv_marca" class="input" type="text" placeholder="ej. pepsico">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Precio</label>
+                    <div class="control">
+                        <input id="incv_precio" class="input" type="text" placeholder="ej. 15.9">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Descripción</label>
+                    <div class="control">
+                      <textarea id="incv_desc" class="textarea" placeholder="ej. producto a base de maiz crijiente y saborizado con especias sabor a queso y tomate."></textarea>
+                    </div>
+                  </div>
+                <div class="columns">
+                    <div class="column is-centered">
+                    <div class="field is-grouped">
+                        <div class="control">
+                            <button id="incv_submit" class="button is-primary">Submit</button>
+                        </div>
+                        <div class="control">
+                            <button id="incv_cancel" class="button is-link is-light">Cancel</button>
+                        </div>
+                        </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="columns">
+                <div class="column">
+                    <div class="box">
+                        <article class="panel is-primary">
+                            <p class="panel-heading">
+                              Barra de búsqueda de Productos.
+                            </p>
+                            <p id="panel_tabs" class="panel-tabs">
+                              <a id="tab_1" class="tab_selectable is-active">All</a>
+                              <a id="tab_2" class="tab_selectable">Producto</a>
+                              <a id="tab_3" class="tab_selectable">Marca</a>
+                              <a id="tab_4" class="tab_selectable">Precio</a>
+                              <a id="tab_5" class="tab_selectable">Descripción</a>
+                            </p>
+                            <div class="panel-block">
+                              <p class="control has-icons-left">
+                                <input id="search_input" class="input" type="text" placeholder="Search">
+                                <span class="icon is-left">
+                                  <i class="fas fa-search" aria-hidden="true"></i>
+                                </span>
+                              </p>
+                            </div>
+                            <div id="search_content" style="height: 9em;overflow: auto;">
+                            <!-- SEARCH CONTENT -->
+                            </div>
+                          </article>
+                    </div>
+                    <div class="box">
+                        <div class="subtitle">Preview</div>
+                        <article id="preview_content" class="message is-primary">
+                          <div class="message-header">
+                              <div></div> 
+                              <button id="preview_delete" class="delete"></button>
+                          </div>
+                          <div class="message-body">
+                              <div class="content"></div>
+                          </div>
+                        </article>               
+                    </div>
+                </div>
+                <div class="column is-1"></div>
+            </div>
+        </div>
+    </div>
+  </body>
+<script>
+$(document).ready(function(){
+  $("#incv_submit").click(function(){
+    info_obj = {
+      "nombre":$("#incv_name").val(),
+      "marca":$("#incv_marca").val(),
+      "precio":$("#incv_precio").val(),
+      "descripcion":$("#incv_desc").val().replace('\n','')
+      };
+    $("#incv_name").val("")
+    $("#incv_marca").val("")
+    $("#incv_precio").val("")
+    $("#incv_desc").val("")
+    $.ajax({
+      url:"/REST/productos/",
+      type:"POST",
+      data:JSON.stringify(info_obj),
+      contentType:"application/json; charset=utf-8",
+      dataType:"json",
+      success: function(data){
+        //console.log(data)
+      }
+  }).fail(function(request,error){
+      //console.log(request)
+      //console.log(error)
+    });
+  });
+  $(".search_selectable").click(function(){
+    var self_content= $(this).find("p[class='text_content']").text();
+    $.get("/REST/productos/",success=function(data){
+      var data_obj = data.results[parseInt(self_content.split(',')[0])-1]
+      var new_html = `<div class="message-header">
+                        <div>`+data_obj["nombre"]+`</div> 
+                        <button id="preview_delete" class="delete"></button>
+                    </div>
+                    <div class="message-body">
+                        <div class="content">MARCA: `+data_obj["marca"]+`</div>
+                        <div class="content">PRECIO: $`+data_obj["precio"]+`</div>
+                        <div class="content">DESCRIPCION: `+data_obj["descripcion"]+`</div>
+                    </div>`;
+    var temp_html= $("#preview_content").html(new_html);
+    $("#preview_delete").click(function(){
+      var new_html = `<div class="message-header">
+                          <div>`+""+`</div> 
+                          <button id="preview_delete" class="delete"></button>
+                      </div>
+                      <div class="message-body">
+                          <div class="content">`+""+`</div>
+                      </div>`;
+      var temp_html= $("#preview_content").html(new_html);
+    });
+    }); 
+  });
+
+  $("#search_input").keyup(function(){
+      var tab_rel={
+      "tab_1":'all',
+      "tab_2":'nombre',
+      "tab_3":'marca',
+      "tab_4":'precio',
+      "tab_5":'descripcion',
+    };
+    json_content = {
+      "type":tab_rel[$("#panel_tabs").find(".is-active").attr('id')],
+      "str":$("#search_input").val()
+    }
+    
+    $.post("/search/product_by_name",JSON.stringify(json_content),success=function(data){
+      
+      var item_list = data;
+      //console.log(data);
+      new_html = ``;
+      item_list.forEach(element => {
+    new_html+= `<a class="panel-block search_selectable">
+                  <span class="panel-icon">
+                    <i class="fas fa-book" aria-hidden="true"></i>
+                  </span>
+                  <p class="text_content">`+element.pk+','+element.fields.nombre+`</p>
+                </a>`;
+      },'json');
+    $("#search_content").html(new_html);
+    $(".search_selectable").click(function(){
+      var self_content= $(this).find("p[class='text_content']").text();
+      $.get("/REST/productos/",success=function(data){
+        //console.log(data)
+        //console.log(parseInt(self_content.split(',')[0])-1);
+      //console.log(data)
+      var data_obj = data[parseInt(self_content.split(',')[0])-1];
+      var new_html = `<div class="message-header">
+                        <div>`+data_obj["nombre"]+`</div> 
+                        <button id="preview_delete" class="delete"></button>
+                    </div>
+                    <div class="message-body">
+                        <div class="content">MARCA: `+data_obj["marca"]+`</div>
+                        <div class="content">PRECIO: $`+data_obj["precio"]+`</div>
+                        <div class="content">DESCRIPCION: `+data_obj["descripcion"]+`</div>
+                    </div>`;
+    var temp_html= $("#preview_content").html(new_html);
+    $("#preview_delete").click(function(){
+      var new_html = `<div class="message-header">
+                          <div>`+""+`</div> 
+                          <button id="preview_delete" class="delete"></button>
+                      </div>
+                      <div class="message-body">
+                          <div class="content">`+""+`</div>
+                      </div>`;
+      var temp_html= $("#preview_content").html(new_html);
+    });
+    }); 
+    });
+    }); 
+})
+
+  $("#preview_delete").click(function(){
+    var new_html = `<div class="message-header">
+                        <div>`+""+`</div> 
+                        <button id="preview_delete" class="delete"></button>
+                    </div>
+                    <div class="message-body">
+                        <div class="content">`+""+`</div>
+                    </div>`;
+    var temp_html= $("#preview_content").html(new_html);
+  });
+
+  $(".tab_selectable").click(function(){
+    var id_rel={
+      "tab_1":0,
+      "tab_2":1,
+      "tab_3":2,
+      "tab_4":3,
+      "tab_5":4,
+    };
+    for(let tab in id_rel){
+      try{
+        $("#"+tab).removeClass("is-active");
+      }catch{}
+    }
+    $(this).addClass("is-active");
+  });
+  
+  $("#incv_cancel").click(function(){
+    $("#incv_name").val("")
+    $("#incv_marca").val("")
+    $("#incv_precio").val("")
+    $("#incv_desc").val("")
+    
+  });
+});
+</script>
+</html>
+</body>
+</html>
